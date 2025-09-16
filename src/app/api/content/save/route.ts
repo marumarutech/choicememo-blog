@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   if (!OWNER || !REPO) {
     return new Response(JSON.stringify({ error: 'Repo not configured' }), { status: 500 })
   }
-  const { slug, content, message } = await req.json()
+  const { slug, content, message, branch: reqBranch, createPr } = await req.json()
   if (!isValidSlug(slug) || typeof content !== 'string') {
     return new Response(JSON.stringify({ error: 'Invalid input' }), { status: 400 })
   }
@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
   const octokit = new Octokit({ auth: token })
   const path = `content/posts/${slug}.mdx`
   const base64 = Buffer.from(content, 'utf-8').toString('base64')
+  const branch = (reqBranch && typeof reqBranch === 'string' && reqBranch.trim()) || BRANCH
 
   // Try to get current file sha
   let sha: string | undefined
@@ -47,15 +48,31 @@ export async function POST(req: NextRequest) {
 
   const commitMessage = message || (sha ? `chore(content): update ${slug}.mdx` : `chore(content): add ${slug}.mdx`)
 
+  // Ensure target branch exists
+  if (branch !== BRANCH) {
+    try {
+      await octokit.git.getRef({ owner: OWNER, repo: REPO, ref: `heads/${branch}` })
+    } catch {
+      const base = await octokit.git.getRef({ owner: OWNER, repo: REPO, ref: `heads/${BRANCH}` })
+      await octokit.git.createRef({ owner: OWNER, repo: REPO, ref: `refs/heads/${branch}`, sha: base.data.object.sha })
+    }
+  }
+
   await octokit.repos.createOrUpdateFileContents({
     owner: OWNER,
     repo: REPO,
     path,
     message: commitMessage,
     content: base64,
-    branch: BRANCH,
+    branch,
     sha,
   })
 
-  return new Response(JSON.stringify({ ok: true, path, branch: BRANCH }), { headers: { 'Content-Type': 'application/json' } })
+  let prUrl: string | undefined
+  if (createPr && branch !== BRANCH) {
+    const pr = await octokit.pulls.create({ owner: OWNER, repo: REPO, base: BRANCH, head: branch, title: commitMessage })
+    prUrl = pr.data.html_url
+  }
+
+  return new Response(JSON.stringify({ ok: true, path, branch, prUrl }), { headers: { 'Content-Type': 'application/json' } })
 }

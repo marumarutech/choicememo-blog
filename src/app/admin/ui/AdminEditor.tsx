@@ -36,6 +36,13 @@ export default function AdminEditor() {
   const [previewHtml, setPreviewHtml] = useState('')
   const [saving, setSaving] = useState(false)
   const [commitMessage, setCommitMessage] = useState('')
+  const [branch, setBranch] = useState('')
+  const [createPr, setCreatePr] = useState(false)
+  const [allSlugs, setAllSlugs] = useState<string[]>([])
+  const [allTags, setAllTags] = useState<string[]>([])
+  const [slugWarn, setSlugWarn] = useState<string | null>(null)
+  const [tab, setTab] = useState<'new' | 'existing'>('new')
+  const [list, setList] = useState<{ file: string; slug: string | null; title: string | null; type: string | null; draft: boolean; publishedAt: string | null }[]>([])
 
   const mdx = useMemo(() => {
     const tagsArr = tags
@@ -57,6 +64,40 @@ export default function AdminEditor() {
       `---\n\n` +
       body + '\n'
   }, [title, slug, description, type, tags, publishedAt, updatedAt, hero, draft, body])
+
+  // 初期メタ（スラッグ/タグ/一覧）
+  useEffect(() => {
+    fetch('/api/content/meta').then(r => r.json()).then(d => {
+      setAllSlugs(d.slugs || [])
+      setAllTags(d.tags || [])
+    }).catch(() => {})
+    fetch('/api/content/list').then(r => r.json()).then(d => setList(d.items || [])).catch(() => {})
+  }, [])
+
+  // スラッグ重複警告
+  useEffect(() => {
+    if (!slug) { setSlugWarn(null); return }
+    const exists = allSlugs.includes(slug)
+    setSlugWarn(exists ? 'このスラッグは既に存在します（上書き保存になります）' : null)
+  }, [slug, allSlugs])
+
+  // ローカル自動保存
+  useEffect(() => {
+    const key = `cm-admin-draft-${slug || 'untitled'}`
+    const id = setTimeout(() => { localStorage.setItem(key, mdx) }, 500)
+    return () => clearTimeout(id)
+  }, [mdx, slug])
+
+  // Ctrl+S で保存
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault(); saveToGitHub()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [saveToGitHub])
 
   // ライブプレビュー（デバウンス）
   useEffect(() => {
@@ -96,9 +137,10 @@ export default function AdminEditor() {
     if (status !== 'authenticated') return signIn('github')
     setSaving(true)
     try {
-      const res = await fetch('/api/content/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug, content: mdx, message: commitMessage }) })
+      const res = await fetch('/api/content/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug, content: mdx, message: commitMessage, branch: branch || undefined, createPr }) })
       if (!res.ok) throw new Error(await res.text())
-      alert('コミットしました。Vercel のデプロイを確認してください。')
+      const data = await res.json()
+      alert(`コミットしました。ブランチ: ${data.branch}${data.prUrl ? `\nPR: ${data.prUrl}` : ''}`)
     } catch (e: any) {
       alert('保存に失敗しました: ' + e.message)
     } finally {
@@ -121,9 +163,61 @@ export default function AdminEditor() {
           )}
         </div>
       </div>
-      <p className="text-sm text-gray-600">生成した .mdx をダウンロード or クリップボードへコピーし、`content/posts/` に追加してコミットしてください。</p>
+      <div className="flex gap-2 text-sm">
+        <button className={`rounded px-3 py-1 ${tab==='new'?'bg-gray-900 text-white':'border'}`} onClick={() => setTab('new')}>新規作成</button>
+        <button className={`rounded px-3 py-1 ${tab==='existing'?'bg-gray-900 text-white':'border'}`} onClick={() => setTab('existing')}>既存を編集</button>
+      </div>
+      <p className="text-sm text-gray-600">生成した .mdx をダウンロード / GitHub に保存して運用します。</p>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
+          {tab==='existing' && (
+            <div className="rounded border p-3">
+              <div className="mb-2 text-sm font-semibold">既存記事</div>
+              <div className="mb-2 text-xs text-gray-600">クリックでエディタに読み込み</div>
+              <div className="max-h-60 overflow-auto pr-2">
+                <table className="w-full text-xs">
+                  <thead><tr className="text-left text-gray-500"><th>タイトル</th><th>スラッグ</th><th>タイプ</th><th>公開日</th></tr></thead>
+                  <tbody>
+                    {list.map((it) => (
+                      <tr key={it.file} className="cursor-pointer hover:bg-gray-50" onClick={async () => {
+                        const res = await fetch(`/api/content/get?file=${encodeURIComponent(it.file)}`)
+                        const text = await res.text();
+                        setBody(text.split('\n---\n').slice(2).join('\n---\n')) // best-effort; UIはmdx全文で上書き
+                        // そのまま全文ロード
+                        const raw = text
+                        // frontmatter 抜粋
+                        const m = raw.match(/^---[\s\S]*?---/)
+                        if (m) {
+                          const fm = m[0]
+                          const get = (k: string) => {
+                            const r = new RegExp(`\\n${k}:(.*)\\n`)
+                            const mm = fm.match(r)
+                            return mm ? mm[1].trim().replace(/^"|"$/g,'') : ''
+                          }
+                          setTitle(get('title'))
+                          setSlug(get('slug'))
+                          setDescription(get('description'))
+                          setHero(get('hero'))
+                          setPublishedAt(get('publishedAt')||today())
+                          setUpdatedAt(get('updatedAt')||today())
+                          const t = get('type') as PostType
+                          if (t) setType(t)
+                          setDraft(/\ndraft:\s*true/i.test(fm))
+                          const tagsM = fm.match(/\ntags:\s*\[(.*?)\]/)
+                          setTags(tagsM ? tagsM[1] : '')
+                        }
+                      }}>
+                        <td className="py-1 pr-2">{it.title || '(無題)'}</td>
+                        <td className="py-1 pr-2 text-gray-600">{it.slug}</td>
+                        <td className="py-1 pr-2 text-gray-600">{it.type}</td>
+                        <td className="py-1 pr-2 text-gray-600">{it.publishedAt}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="block text-sm">
               <span className="text-gray-700">タイトル</span>
@@ -135,6 +229,7 @@ export default function AdminEditor() {
                 <input className="w-full rounded border p-2" value={slug} onChange={(e) => setSlug(e.target.value)} />
                 <button className="rounded border px-2" onClick={() => setSlug(slugify(title))}>生成</button>
               </div>
+              {slugWarn ? <div className="mt-1 text-xs text-amber-700">{slugWarn}</div> : null}
             </label>
           </div>
           <label className="block text-sm">
@@ -165,6 +260,9 @@ export default function AdminEditor() {
             <label className="block text-sm">
               <span className="text-gray-700">タグ（カンマ区切り）</span>
               <input className="mt-1 w-full rounded border p-2" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="健康, プロテイン, 比較" />
+              {allTags?.length ? (
+                <div className="mt-1 text-xs text-gray-500">既存タグ候補: {allTags.slice(0, 20).join(', ')}{allTags.length>20?' …':''}</div>
+              ) : null}
             </label>
             <label className="block text-sm">
               <span className="text-gray-700">ヒーロー画像URL</span>
@@ -199,6 +297,16 @@ export default function AdminEditor() {
               <span className="text-gray-700">コミットメッセージ（任意）</span>
               <input className="mt-1 w-full rounded border p-2" value={commitMessage} onChange={(e) => setCommitMessage(e.target.value)} placeholder="chore(content): add/update {slug}.mdx" />
             </label>
+            <div className="mt-3 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
+              <label className="block">
+                <span className="text-gray-700">ブランチ（任意）</span>
+                <input className="mt-1 w-full rounded border p-2" value={branch} onChange={(e) => setBranch(e.target.value)} placeholder="feature/post-xxx（未指定なら main）" />
+              </label>
+              <label className="mt-6 inline-flex items-center gap-2">
+                <input type="checkbox" checked={createPr} onChange={(e) => setCreatePr(e.target.checked)} />
+                <span>PR を自動作成</span>
+              </label>
+            </div>
             <div className="mt-3 text-xs text-gray-600">
               置き場所: <code>content/posts/{'{slug}'}.mdx</code>
             </div>
