@@ -1,0 +1,68 @@
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+
+export function articleJsonLd(input: {
+  url: string
+  headline: string
+  description?: string
+  datePublished: string
+  dateModified?: string
+  image?: string
+  authorName?: string
+  tags?: string[]
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': SITE_URL + input.url,
+    },
+    headline: input.headline,
+    description: input.description,
+    datePublished: input.datePublished,
+    dateModified: input.dateModified ?? input.datePublished,
+    image: input.image ? [input.image] : undefined,
+    author: input.authorName ? [{ '@type': 'Person', name: input.authorName }] : undefined,
+    keywords: input.tags?.join(', '),
+  }
+}
+
+export function faqJsonLd(faqs: { question: string; answer: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.question,
+      acceptedAnswer: { '@type': 'Answer', text: f.answer },
+    })),
+  }
+}
+
+export function postMetadata(input: {
+  title: string
+  description?: string
+  url: string
+  image?: string
+}) {
+  const absoluteUrl = SITE_URL.replace(/\/$/, '') + input.url
+  return {
+    title: input.title,
+    description: input.description,
+    alternates: { canonical: absoluteUrl },
+    openGraph: {
+      title: input.title,
+      description: input.description,
+      url: absoluteUrl,
+      images: input.image ? [{ url: input.image }] : undefined,
+      type: 'article',
+      siteName: 'ChoiceMemo',
+    },
+    twitter: {
+      card: input.image ? 'summary_large_image' : 'summary',
+      title: input.title,
+      description: input.description,
+      images: input.image ? [input.image] : undefined,
+    },
+  }
+}

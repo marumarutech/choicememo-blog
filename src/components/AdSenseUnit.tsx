@@ -1,0 +1,32 @@
+"use client"
+import { useEffect } from 'react'
+
+type Props = {
+  slot?: string
+  format?: string
+  responsive?: boolean
+  className?: string
+}
+
+export default function AdSenseUnit({ slot, format = 'auto', responsive = true, className }: Props) {
+  useEffect(() => {
+    try {
+      // @ts-ignore
+      ;(window.adsbygoogle = window.adsbygoogle || []).push({})
+    } catch {}
+  }, [])
+
+  return (
+    <div className={className}>
+      <ins
+        className="adsbygoogle block"
+        style={{ display: 'block', minHeight: 200 }}
+        data-ad-client="ca-pub-XXXX"
+        data-ad-slot={slot}
+        data-ad-format={format}
+        data-full-width-responsive={responsive ? 'true' : 'false'}
+      />
+    </div>
+  )
+}
+
