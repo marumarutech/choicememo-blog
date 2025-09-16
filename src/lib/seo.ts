@@ -1,4 +1,31 @@
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+const DEFAULT_SITE_URL = 'http://localhost:3000'
+
+function resolveSiteUrl() {
+  const candidates: Array<{ source: string; value?: string }> = [
+    { source: 'NEXT_PUBLIC_SITE_URL', value: process.env.NEXT_PUBLIC_SITE_URL?.trim() },
+    { source: 'VERCEL_URL', value: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL.trim()}` : undefined },
+  ]
+
+  for (const candidate of candidates) {
+    if (!candidate.value) continue
+    try {
+      const parsed = new URL(candidate.value)
+      return parsed.toString()
+    } catch {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`Invalid ${candidate.source}: "${candidate.value}". Ignoring.`)
+      }
+    }
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(`Falling back to default SITE_URL: ${DEFAULT_SITE_URL}.`)
+  }
+
+  return DEFAULT_SITE_URL
+}
+
+export const SITE_URL = resolveSiteUrl()
 
 export function articleJsonLd(input: {
   url: string
