@@ -3,28 +3,26 @@ import path from 'node:path'
 import matter from 'gray-matter'
 import { z } from 'zod'
 import { articleJsonLd, faqJsonLd } from './seo'
-
-export const POST_TYPES = ['best','review','guide','news','deals'] as const
-export type PostType = typeof POST_TYPES[number]
+import { CATEGORIES, CATEGORY_KEYS, type CategoryKey } from '@config/categories'
 
 const Frontmatter = z.object({
   title: z.string(),
   slug: z.string(),
   description: z.string().optional(),
-  type: z.enum(POST_TYPES),
+  category: z.enum(CATEGORY_KEYS),
   tags: z.array(z.string()).default([]),
-  publishedAt: z.string(),
-  updatedAt: z.string().optional(),
+  date: z.string(),
+  updated: z.string().optional(),
   hero: z.string().optional(),
   draft: z.boolean().default(false),
+  affiliate: z.boolean().default(false),
   faqs: z.array(z.object({ question: z.string(), answer: z.string() })).optional(),
 })
 
 export type Post = {
   id: string
-  type: PostType
+  category: CategoryKey
   slug: string
-  segment?: string // for news yyyy-mm
   url: string
   title: string
   description?: string
@@ -33,6 +31,7 @@ export type Post = {
   updatedAt?: string
   hero?: string
   draft: boolean
+  affiliate: boolean
   content: string
   jsonld: any
   faqJsonLd?: any
@@ -43,88 +42,89 @@ const CONTENT_DIR = path.join(process.cwd(), 'content', 'posts')
 export async function readAllFiles(): Promise<string[]> {
   async function walk(dir: string): Promise<string[]> {
     const entries = await fs.readdir(dir, { withFileTypes: true })
-    const files = await Promise.all(entries.map((e) => {
-      const full = path.join(dir, e.name)
-      return e.isDirectory() ? walk(full) : Promise.resolve([full])
+    const files = await Promise.all(entries.map((entry) => {
+      const full = path.join(dir, entry.name)
+      return entry.isDirectory() ? walk(full) : Promise.resolve([full])
     }))
     return files.flat()
   }
   try {
     const files = await walk(CONTENT_DIR)
-    return files.filter((f) => f.endsWith('.mdx'))
+    return files.filter((file) => file.endsWith('.mdx'))
   } catch {
     return []
   }
 }
 
-function toUrl(type: PostType, slug: string, publishedAt?: string) {
-  if (type === 'news') {
-    const seg = (publishedAt ?? '').slice(0, 7)
-    return { url: `/news/${seg}/${slug}`, segment: seg }
-  }
-  const map: Record<PostType, string> = {
-    best: 'best', review: 'reviews', guide: 'guides', news: 'news', deals: 'deals'
-  }
-  return { url: `/${map[type]}/${slug}` }
+function toUrl(category: CategoryKey, slug: string) {
+  const base = CATEGORIES[category]?.path ?? `/${category}`
+  return base.endsWith('/') ? `${base}${slug}` : `${base}/${slug}`
 }
 
-export async function getAllPosts(opts?: { limit?: number }) : Promise<Post[]> {
+export async function getAllPosts(opts?: { limit?: number }): Promise<Post[]> {
   const files = await readAllFiles()
   const posts: Post[] = []
+
   for (const file of files) {
     const raw = await fs.readFile(file, 'utf-8')
     const { data, content } = matter(raw)
-    const f = Frontmatter.parse(data)
-    if (f.draft) continue
-    const { url, segment } = toUrl(f.type, f.slug, f.publishedAt)
+    const parsed = Frontmatter.parse(data)
+    if (parsed.draft) continue
+
+    const url = toUrl(parsed.category, parsed.slug)
     posts.push({
       id: file,
-      type: f.type,
-      slug: f.slug,
-      segment,
+      category: parsed.category,
+      slug: parsed.slug,
       url,
-      title: f.title,
-      description: f.description,
-      tags: f.tags,
-      publishedAt: f.publishedAt,
-      updatedAt: f.updatedAt,
-      hero: f.hero,
-      draft: f.draft,
+      title: parsed.title,
+      description: parsed.description,
+      tags: parsed.tags,
+      publishedAt: parsed.date,
+      updatedAt: parsed.updated,
+      hero: parsed.hero,
+      draft: parsed.draft,
+      affiliate: parsed.affiliate,
       content,
       jsonld: articleJsonLd({
         url,
-        headline: f.title,
-        description: f.description,
-        datePublished: f.publishedAt,
-        dateModified: f.updatedAt,
-        image: f.hero,
-        tags: f.tags,
+        headline: parsed.title,
+        description: parsed.description,
+        datePublished: parsed.date,
+        dateModified: parsed.updated,
+        image: parsed.hero,
+        tags: parsed.tags,
       }),
-      faqJsonLd: f.faqs?.length ? faqJsonLd(f.faqs) : undefined,
+      faqJsonLd: parsed.faqs?.length ? faqJsonLd(parsed.faqs) : undefined,
     })
   }
-  posts.sort((a, b) => (b.publishedAt.localeCompare(a.publishedAt)))
+
+  posts.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
   return typeof opts?.limit === 'number' ? posts.slice(0, opts.limit) : posts
 }
 
-export async function getPostsByType(type: PostType) {
+export async function getPostsByCategory(category: CategoryKey) {
   const all = await getAllPosts()
-  return all.filter(p => p.type === type)
+  return all.filter((post) => post.category === category)
 }
 
-export async function getPostBySlug(type: PostType, slug: string) {
+export async function getPostBySlug(category: CategoryKey, slug: string) {
   const all = await getAllPosts()
-  return all.find(p => p.type === type && p.slug === slug)
+  return all.find((post) => post.category === category && post.slug === slug)
 }
 
 export async function getPostsByTag(tag: string) {
   const all = await getAllPosts()
-  return all.filter(p => p.tags.includes(tag))
+  return all.filter((post) => post.tags.includes(tag))
 }
 
 export async function getRelatedPosts(post: Post, count = 3) {
   const all = await getAllPosts()
-  const related = all.filter(p => p.id !== post.id && (p.type === post.type || p.tags.some(t => post.tags.includes(t))))
+  const related = all.filter(
+    (item) =>
+      item.id !== post.id &&
+      (item.category === post.category || item.tags.some((tag) => post.tags.includes(tag))),
+  )
   return related.slice(0, count)
 }
 
@@ -135,6 +135,7 @@ const POPULAR_SLUGS: string[] = [
 export async function getPopularPosts(limit = 10) {
   const all = await getAllPosts()
   if (!POPULAR_SLUGS.length) return all.slice(0, limit)
-  const map = new Map(all.map(p => [p.slug, p]))
-  return POPULAR_SLUGS.map(s => map.get(s)).filter(Boolean).slice(0, limit) as Post[]
+  const map = new Map(all.map((post) => [post.slug, post]))
+  return POPULAR_SLUGS.map((slug) => map.get(slug)).filter(Boolean).slice(0, limit) as Post[]
 }
+

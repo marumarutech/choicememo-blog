@@ -1,4 +1,4 @@
-import fs from 'node:fs/promises'
+﻿import fs from 'node:fs/promises'
 import path from 'node:path'
 import matter from 'gray-matter'
 
@@ -7,7 +7,15 @@ const CONTENT_DIR = path.join(process.cwd(), 'content', 'posts')
 export async function GET() {
   try {
     const files = await fs.readdir(CONTENT_DIR)
-    const items = [] as any[]
+    const items: Array<{
+      file: string
+      slug: string | null
+      title: string | null
+      category: string | null
+      draft: boolean
+      publishedAt: string | null
+    }> = []
+
     for (const name of files) {
       if (!name.endsWith('.mdx')) continue
       const full = path.join(CONTENT_DIR, name)
@@ -17,14 +25,14 @@ export async function GET() {
         file: name,
         slug: data?.slug ?? null,
         title: data?.title ?? null,
-        type: data?.type ?? null,
-        draft: !!data?.draft,
-        publishedAt: data?.publishedAt ?? null,
+        category: data?.category ?? null,
+        draft: Boolean(data?.draft),
+        publishedAt: data?.date ?? null,
       })
     }
+
     return Response.json({ items })
-  } catch (e: any) {
-    return new Response(JSON.stringify({ error: e?.message || 'Failed to list posts' }), { status: 500 })
+  } catch (error: any) {
+    return new Response(JSON.stringify({ error: error?.message || 'Failed to list posts' }), { status: 500 })
   }
 }
-

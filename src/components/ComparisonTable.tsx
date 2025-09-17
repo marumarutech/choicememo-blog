@@ -1,27 +1,14 @@
-type Row = Record<string, string | number | boolean>
+﻿import type { ReactNode } from 'react'
+import CompareTable from './CompareTable'
 
-export default function ComparisonTable({ columns, rows }: { columns: string[]; rows: Row[] }) {
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[600px] border-collapse text-sm">
-        <thead>
-          <tr>
-            {columns.map((c) => (
-              <th key={c} className="border-b p-2 text-left font-semibold">{c}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r, i) => (
-            <tr key={i} className="odd:bg-gray-50">
-              {columns.map((c) => (
-                <td key={c} className="border-b p-2">{String(r[c] ?? '')}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
+type LegacyRow = Record<string, string | number | boolean | ReactNode>
+
+type LegacyProps = {
+  columns: string[]
+  rows: LegacyRow[]
 }
 
+export default function ComparisonTable({ columns, rows }: LegacyProps) {
+  const normalized = rows.map((row) => columns.map((col) => row[col] ?? ''))
+  return <CompareTable cols={columns} rows={normalized} />
+}
