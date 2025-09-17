@@ -1,0 +1,430 @@
+{
+  "generatedAt": "2025-09-17T14:18:05.375Z",
+  "incident": {
+    "date": "2025-09-08",
+    "description": "Phishing-driven npm supply-chain takeover targeting debug, chalk, ansi-styles, etc."
+  },
+  "steps": {
+    "step1": {
+      "description": "Safe install with scripts disabled",
+      "status": "completed",
+      "command": "npm install --ignore-scripts"
+    },
+    "step2": {
+      "description": "Generated dependency tree and CycloneDX SBOM",
+      "status": "completed",
+      "artifacts": [
+        ".reports/dependency-tree.txt",
+        ".reports/dependency-tree.json",
+        ".reports/sbom.json"
+      ]
+    },
+    "step3": {
+      "description": "Ran npm audit plus attempted Socket/Snyk scans",
+      "status": "blocked-external",
+      "artifacts": [
+        ".reports/npm-audit.json",
+        ".reports/socket-ci.json",
+        ".reports/snyk-test.json"
+      ]
+    },
+    "step4": {
+      "description": "Enumerated lifecycle scripts across installed packages",
+      "status": "completed",
+      "artifacts": [
+        ".reports/lifecycle-scripts.json"
+      ],
+      "count": 257
+    },
+    "step5": {
+      "description": "Flagged supply-chain suspect packages",
+      "status": "completed",
+      "artifacts": [
+        ".reports/suspects.json"
+      ],
+      "count": 11
+    },
+    "step6": {
+      "description": "Checked package-lock.json drift",
+      "status": "completed",
+      "artifacts": [
+        ".reports/lock-diff.txt"
+      ]
+    },
+    "step7": {
+      "description": "Pinned sensitive packages via overrides and added CI workflow",
+      "status": "completed",
+      "artifacts": [
+        "package.json",
+        ".github/workflows/supplychain-guard.yml",
+        "scripts/check-supplychain-pins.js"
+      ]
+    }
+  },
+  "audits": {
+    "npm": {
+      "status": "clean",
+      "totalVulnerabilities": 0,
+      "dependencies": 631,
+      "file": ".reports/npm-audit.json"
+    },
+    "socket": {
+      "status": "auth_required",
+      "message": "Auth Error",
+      "file": ".reports/socket-ci.json"
+    },
+    "snyk": {
+      "status": "auth_required",
+      "message": "Use `snyk auth` to authenticate.",
+      "file": ".reports/snyk-test.json"
+    }
+  },
+  "suspects": {
+    "count": 11,
+    "items": [
+      {
+        "name": "debug",
+        "version": "4.4.3",
+        "severity": "critical",
+        "reason": "Flagged in Sep 8 2025 npm supply-chain takeover; verify installed version source and integrity.",
+        "paths": [
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@typescript-eslint/eslint-plugin@7.2.0",
+            "@typescript-eslint/type-utils@7.2.0",
+            "debug@4.4.3"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@typescript-eslint/eslint-plugin@7.2.0",
+            "debug@4.4.3"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@typescript-eslint/parser@7.2.0",
+            "@typescript-eslint/typescript-estree@7.2.0",
+            "debug@4.4.3"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@typescript-eslint/parser@7.2.0",
+            "debug@4.4.3"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "eslint-import-resolver-typescript@3.10.1",
+            "debug@4.4.3"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint@8.57.0",
+            "@eslint/eslintrc@2.1.4",
+            "debug@4.4.3"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint@8.57.0",
+            "@humanwhocodes/config-array@0.11.14",
+            "debug@4.4.3"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint@8.57.0",
+            "debug@4.4.3"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "remark-parse@11.0.0",
+            "mdast-util-from-markdown@2.0.2",
+            "micromark@4.0.2",
+            "debug@4.4.3"
+          ]
+        ]
+      },
+      {
+        "name": "debug",
+        "version": "3.2.7",
+        "severity": "critical",
+        "reason": "Flagged in Sep 8 2025 npm supply-chain takeover; verify installed version source and integrity.",
+        "paths": [
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "eslint-import-resolver-node@0.3.9",
+            "debug@3.2.7"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "eslint-plugin-import@2.32.0",
+            "debug@3.2.7"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "eslint-plugin-import@2.32.0",
+            "eslint-module-utils@2.12.1",
+            "debug@3.2.7"
+          ]
+        ]
+      },
+      {
+        "name": "ansi-styles",
+        "version": "4.3.0",
+        "severity": "high",
+        "reason": "Transitive of chalk impacted by Sep 8 2025 incident.",
+        "paths": [
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@next/eslint-plugin-next@14.2.10",
+            "glob@10.3.10",
+            "jackspeak@2.3.6",
+            "@isaacs/cliui@8.0.2",
+            "wrap-ansi-cjs@7.0.0",
+            "ansi-styles@4.3.0"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint@8.57.0",
+            "chalk@4.1.2",
+            "ansi-styles@4.3.0"
+          ]
+        ]
+      },
+      {
+        "name": "ansi-styles",
+        "version": "6.2.3",
+        "severity": "high",
+        "reason": "Transitive of chalk impacted by Sep 8 2025 incident.",
+        "paths": [
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@next/eslint-plugin-next@14.2.10",
+            "glob@10.3.10",
+            "jackspeak@2.3.6",
+            "@isaacs/cliui@8.0.2",
+            "wrap-ansi@8.1.0",
+            "ansi-styles@6.2.3"
+          ]
+        ]
+      },
+      {
+        "name": "chalk",
+        "version": "4.1.2",
+        "severity": "high",
+        "reason": "Involved in Sep 8 2025 npm supply-chain incident; ensure clean version.",
+        "paths": [
+          [
+            "choicememo-blog@0.1.0",
+            "eslint@8.57.0",
+            "chalk@4.1.2"
+          ]
+        ]
+      },
+      {
+        "name": "strip-ansi",
+        "version": "6.0.1",
+        "severity": "medium",
+        "reason": "Part of ansi-styles/ansi ecosystem with historic supply-chain risk.",
+        "paths": [
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@next/eslint-plugin-next@14.2.10",
+            "glob@10.3.10",
+            "jackspeak@2.3.6",
+            "@isaacs/cliui@8.0.2",
+            "string-width-cjs@4.2.3",
+            "strip-ansi@6.0.1"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@next/eslint-plugin-next@14.2.10",
+            "glob@10.3.10",
+            "jackspeak@2.3.6",
+            "@isaacs/cliui@8.0.2",
+            "wrap-ansi-cjs@7.0.0",
+            "string-width@4.2.3",
+            "strip-ansi@6.0.1"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@next/eslint-plugin-next@14.2.10",
+            "glob@10.3.10",
+            "jackspeak@2.3.6",
+            "@isaacs/cliui@8.0.2",
+            "wrap-ansi-cjs@7.0.0",
+            "strip-ansi@6.0.1"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint@8.57.0",
+            "strip-ansi@6.0.1"
+          ]
+        ]
+      },
+      {
+        "name": "strip-ansi",
+        "version": "7.1.2",
+        "severity": "medium",
+        "reason": "Part of ansi-styles/ansi ecosystem with historic supply-chain risk.",
+        "paths": [
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@next/eslint-plugin-next@14.2.10",
+            "glob@10.3.10",
+            "jackspeak@2.3.6",
+            "@isaacs/cliui@8.0.2",
+            "string-width@5.1.2",
+            "strip-ansi@7.1.2"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@next/eslint-plugin-next@14.2.10",
+            "glob@10.3.10",
+            "jackspeak@2.3.6",
+            "@isaacs/cliui@8.0.2",
+            "strip-ansi@7.1.2"
+          ],
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@next/eslint-plugin-next@14.2.10",
+            "glob@10.3.10",
+            "jackspeak@2.3.6",
+            "@isaacs/cliui@8.0.2",
+            "wrap-ansi@8.1.0",
+            "strip-ansi@7.1.2"
+          ]
+        ]
+      },
+      {
+        "name": "supports-color",
+        "version": "7.2.0",
+        "severity": "medium",
+        "reason": "Closely tied to chalk ecosystem targeted in incident.",
+        "paths": [
+          [
+            "choicememo-blog@0.1.0",
+            "eslint@8.57.0",
+            "chalk@4.1.2",
+            "supports-color@7.2.0"
+          ]
+        ]
+      },
+      {
+        "name": "wrap-ansi",
+        "version": "8.1.0",
+        "severity": "medium",
+        "reason": "Linked to ansi-styles/chalk incident chain; review transitive integrity.",
+        "paths": [
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@next/eslint-plugin-next@14.2.10",
+            "glob@10.3.10",
+            "jackspeak@2.3.6",
+            "@isaacs/cliui@8.0.2",
+            "wrap-ansi@8.1.0"
+          ]
+        ]
+      },
+      {
+        "name": "@isaacs/cliui",
+        "version": "8.0.2",
+        "severity": "low",
+        "reason": "Dependent on wrap-ansi / ansi-styles targeted chain.",
+        "paths": [
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@next/eslint-plugin-next@14.2.10",
+            "glob@10.3.10",
+            "jackspeak@2.3.6",
+            "@isaacs/cliui@8.0.2"
+          ]
+        ]
+      },
+      {
+        "name": "jackspeak",
+        "version": "2.3.6",
+        "severity": "low",
+        "reason": "Pulled via glob CLI utilities touched during incident due to shared maintainers.",
+        "paths": [
+          [
+            "choicememo-blog@0.1.0",
+            "eslint-config-next@14.2.10",
+            "@next/eslint-plugin-next@14.2.10",
+            "glob@10.3.10",
+            "jackspeak@2.3.6"
+          ]
+        ]
+      }
+    ]
+  },
+  "lifecycleScripts": {
+    "count": 257,
+    "file": ".reports/lifecycle-scripts.json"
+  },
+  "ci": {
+    "workflow": ".github/workflows/supplychain-guard.yml",
+    "pinCheckScript": "scripts/check-supplychain-pins.js"
+  },
+  "artifacts": [
+    {
+      "file": ".reports/dependency-tree.txt",
+      "description": "npm ls --all output"
+    },
+    {
+      "file": ".reports/dependency-tree.json",
+      "description": "npm ls --all --json output"
+    },
+    {
+      "file": ".reports/sbom.json",
+      "description": "CycloneDX SBOM generated via @cyclonedx/cyclonedx-npm"
+    },
+    {
+      "file": ".reports/npm-audit.json",
+      "description": "npm audit --json results"
+    },
+    {
+      "file": ".reports/socket-ci.json",
+      "description": "Socket CLI scan attempt"
+    },
+    {
+      "file": ".reports/snyk-test.json",
+      "description": "Snyk CLI scan attempt"
+    },
+    {
+      "file": ".reports/lifecycle-scripts.json",
+      "description": "Detected lifecycle scripts across dependencies"
+    },
+    {
+      "file": ".reports/suspects.json",
+      "description": "Supply-chain suspect package list"
+    },
+    {
+      "file": ".reports/lock-diff.txt",
+      "description": "git diff of package-lock.json"
+    },
+    {
+      "file": ".reports/security-summary.md",
+      "description": "Human-readable brief"
+    },
+    {
+      "file": ".reports/details.json",
+      "description": "Machine-readable summary"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+﻿{
+  "ok": false,
+  "message": "Auth Error",
+  "cause": "You need to provide an API token. Run `socket login` first."
+}
+

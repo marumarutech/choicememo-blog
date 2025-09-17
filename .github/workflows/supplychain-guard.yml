@@ -1,0 +1,37 @@
+name: Supplychain Guard
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 1'
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/supplychain-guard.yml'
+      - 'scripts/check-supplychain-pins.js'
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install dependencies (scripts disabled)
+        run: npm install --ignore-scripts
+
+      - name: Regenerate dependency and audit reports
+        run: |
+          mkdir -p .reports
+          npm ls --all --json > .reports/dependency-tree.json
+          npm audit --json > .reports/npm-audit.json
+
+      - name: Verify pinned supply-chain sensitive packages
+        run: node scripts/check-supplychain-pins.js
