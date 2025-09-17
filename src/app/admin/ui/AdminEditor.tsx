@@ -358,7 +358,6 @@ export default function AdminEditor() {
     } catch (error) {
       const message = error instanceof Error ? error.message : '保存に失敗しました。'
       setToast({ type: 'error', text: message })
-      alert('保存に失敗しました: ' + message)
     } finally {
       setSaving(false)
     }

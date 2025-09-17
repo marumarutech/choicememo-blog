@@ -6,7 +6,6 @@ dist
 .DS_Store
 coverage
 pnpm-lock.yaml
-package-lock.json
 yarn.lock
 .env
 .env.local
