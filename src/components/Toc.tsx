@@ -1,18 +1,45 @@
-type Heading = { id: string; text: string; level: number }
+'use client'
 
-export default function Toc({ items }: { items: Heading[] }) {
-  if (!items?.length) return null
+import { useEffect, useState } from 'react'
+
+type Head = {
+  id: string
+  text: string
+  level: number
+}
+
+export default function TOC() {
+  const [heads, setHeads] = useState<Head[]>([])
+
+  useEffect(() => {
+    const headings = Array.from(document.querySelectorAll('h2, h3')) as HTMLHeadingElement[]
+    setHeads(
+      headings
+        .filter((h) => h.id)
+        .map((h) => ({
+          id: h.id,
+          text: h.textContent ?? '',
+          level: h.tagName === 'H2' ? 2 : 3,
+        })),
+    )
+  }, [])
+
+  if (!heads.length) return null
+
   return (
-    <nav className="not-prose rounded bg-gray-50 p-3 text-sm">
-      <div className="mb-2 font-semibold">目次</div>
-      <ul className="space-y-1">
-        {items.map((h) => (
-          <li key={h.id} style={{ paddingLeft: `${(h.level - 2) * 12}px` }}>
-            <a className="hover:underline" href={`#${h.id}`}>{h.text}</a>
+    <nav className="rounded-2xl border border-brand-border bg-brand-surface p-3 text-sm shadow-subtle md:p-4 md:shadow-soft">
+      <div className="mb-2 font-heading text-sm font-semibold uppercase tracking-wide text-brand-muted">目次</div>
+      <ul className="space-y-2">
+        {heads.map((h) => (
+          <li key={h.id} className={h.level === 3 ? 'pl-4 text-brand-muted' : ''}>
+            <a className="transition hover:text-brand-accent" href={`#${h.id}`}>
+              {h.text}
+            </a>
           </li>
         ))}
       </ul>
     </nav>
   )
 }
+
 

@@ -2,8 +2,139 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Typography tweaks */
-.prose :where(img):not(:where([class~="not-prose"])) {
-  @apply rounded;
+:root {
+  color-scheme: light;
 }
 
+body {
+  @apply min-h-screen bg-brand-bg text-brand-text font-body antialiased;
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(30, 64, 175, 0.08) 0%, transparent 55%),
+    radial-gradient(80% 120% at 90% 10%, rgba(249, 115, 22, 0.08) 0%, transparent 50%),
+    #F4F6FB;
+}
+
+@media (max-width: 640px) {
+  body {
+    background: #F4F6FB;
+  }
+}
+
+a {
+  @apply text-brand-accent transition-colors hover:text-brand-primaryHover;
+}
+
+a:not([class]) {
+  @apply underline underline-offset-4 decoration-1;
+}
+
+main {
+  @apply flex-1;
+}
+
+.prose {
+  @apply text-brand-text;
+}
+
+.prose :where(p):not(:where([class~="not-prose"])) {
+  @apply text-[15px] leading-7 text-brand-muted;
+}
+
+.prose :where(a):not(:where([class~="not-prose"])) {
+  @apply text-brand-accent hover:text-brand-primaryHover;
+}
+
+.prose :where(img):not(:where([class~="not-prose"])) {
+  @apply rounded-xl shadow-soft;
+}
+
+.prose :where(h2, h3, h4):not(:where([class~="not-prose"])) {
+  @apply font-heading font-semibold text-brand-text;
+}
+
+.prose :where(h1):not(:where([class~="not-prose"])) {
+  @apply text-4xl leading-tight text-brand-text;
+}
+
+.prose :where(h2):not(:where([class~="not-prose"])) {
+  @apply mt-10 text-[28px] leading-tight text-brand-text;
+}
+
+.prose :where(h3):not(:where([class~="not-prose"])) {
+  @apply mt-8 text-2xl leading-snug text-brand-text;
+}
+
+.prose :where(h4):not(:where([class~="not-prose"])) {
+  @apply mt-6 text-xl leading-snug text-brand-muted;
+}
+
+.prose :where(h2 + *):not(:where([class~="not-prose"])) {
+  @apply mt-4;
+}
+
+.prose :where(h3 + *):not(:where([class~="not-prose"])) {
+  @apply mt-3;
+}
+
+.prose :where(h4 + *):not(:where([class~="not-prose"])) {
+  @apply mt-2;
+}
+
+.prose :where(li):not(:where([class~="not-prose"])) {
+  @apply leading-7 text-brand-text;
+}
+
+.prose :where(ul):not(:where([class~="not-prose"])) {
+  @apply space-y-2;
+}
+
+.prose :where(blockquote):not(:where([class~="not-prose"])) {
+  @apply border-l-4 border-brand-accent/60 bg-brand-accentSoft text-brand-muted italic;
+}
+
+::selection {
+  background: rgba(30, 64, 175, 0.25);
+  color: #0F172A;
+}
+
+.prose :where(ul > li, ol > li):not(:where([class~="not-prose"])) {
+  @apply text-brand-text;
+}
+
+.prose :where(ul > li)::marker,
+.prose :where(ol > li)::marker {
+  @apply text-brand-primary;
+}
+
+.prose :where(strong):not(:where([class~="not-prose"])) {
+  @apply text-brand-text font-semibold;
+}
+
+.prose :where(code):not(:where([class~="not-prose"])) {
+  @apply rounded bg-brand-subtle px-2 py-1 font-mono text-[0.9em] text-brand-primaryHover;
+}
+
+.prose :where(hr):not(:where([class~="not-prose"])) {
+  @apply border-brand-border;
+}
+
+.prose :where(table):not(:where([class~="not-prose"])) {
+  @apply w-full table-auto overflow-hidden rounded-xl border border-brand-border text-sm;
+}
+
+.prose :where(thead):not(:where([class~="not-prose"])) {
+  @apply bg-brand-surfaceMuted text-left;
+}
+
+.prose :where(th):not(:where([class~="not-prose"])) {
+  @apply px-4 py-2 font-semibold text-brand-text;
+}
+
+.prose :where(td):not(:where([class~="not-prose"])) {
+  @apply border-t border-brand-border px-4 py-2 text-brand-muted;
+}
+
+:focus-visible {
+  outline: 2px solid theme('colors.brand.ring');
+  outline-offset: 2px;
+}

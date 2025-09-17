@@ -1,16 +1,16 @@
-import { getAllPosts } from '@lib/posts-fs'
+﻿import { getAllPosts } from '@lib/posts-fs'
 import { SITE_URL } from '@lib/seo'
 
 export async function GET() {
   const base = SITE_URL.replace(/\/$/, '')
   const items = (await getAllPosts({ limit: 50 }))
-    .map((p) => `
+    .map((post) => `
     <item>
-      <title><![CDATA[${p.title}]]></title>
-      <link>${base + p.url}</link>
-      <guid>${base + p.url}</guid>
-      <pubDate>${new Date(p.publishedAt).toUTCString()}</pubDate>
-      <description><![CDATA[${p.description ?? ''}]]></description>
+      <title><![CDATA[${post.title}]]></title>
+      <link>${base + post.url}</link>
+      <guid>${base + post.url}</guid>
+      <pubDate>${new Date(post.publishedAt).toUTCString()}</pubDate>
+      <description><![CDATA[${post.description ?? ''}]]></description>
     </item>`)
     .join('')
 
@@ -19,7 +19,7 @@ export async function GET() {
     <channel>
       <title>ChoiceMemo</title>
       <link>${base}</link>
-      <description>Best/Reviews/Guides/News/Deals</description>
+      <description>Invest / Fitness / Gadgets / Deals / Topics</description>
       ${items}
     </channel>
   </rss>`
