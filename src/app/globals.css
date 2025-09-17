@@ -21,7 +21,7 @@ body {
 }
 
 a {
-  @apply text-brand-accent transition-colors hover:text-brand-primaryHover;
+  @apply text-brand-accent transition-colors hover:text-brand-accentHover;
 }
 
 a:not([class]) {
@@ -41,7 +41,7 @@ main {
 }
 
 .prose :where(a):not(:where([class~="not-prose"])) {
-  @apply text-brand-accent hover:text-brand-primaryHover;
+  @apply text-brand-accent hover:text-brand-accentHover;
 }
 
 .prose :where(img):not(:where([class~="not-prose"])) {
