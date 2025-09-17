@@ -1,0 +1,291 @@
+[
+  {
+    "name": "debug",
+    "version": "4.4.3",
+    "severity": "critical",
+    "reason": "Flagged in Sep 8 2025 npm supply-chain takeover; verify installed version source and integrity.",
+    "paths": [
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@typescript-eslint/eslint-plugin@7.2.0",
+        "@typescript-eslint/type-utils@7.2.0",
+        "debug@4.4.3"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@typescript-eslint/eslint-plugin@7.2.0",
+        "debug@4.4.3"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@typescript-eslint/parser@7.2.0",
+        "@typescript-eslint/typescript-estree@7.2.0",
+        "debug@4.4.3"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@typescript-eslint/parser@7.2.0",
+        "debug@4.4.3"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "eslint-import-resolver-typescript@3.10.1",
+        "debug@4.4.3"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint@8.57.0",
+        "@eslint/eslintrc@2.1.4",
+        "debug@4.4.3"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint@8.57.0",
+        "@humanwhocodes/config-array@0.11.14",
+        "debug@4.4.3"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint@8.57.0",
+        "debug@4.4.3"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "remark-parse@11.0.0",
+        "mdast-util-from-markdown@2.0.2",
+        "micromark@4.0.2",
+        "debug@4.4.3"
+      ]
+    ]
+  },
+  {
+    "name": "debug",
+    "version": "3.2.7",
+    "severity": "critical",
+    "reason": "Flagged in Sep 8 2025 npm supply-chain takeover; verify installed version source and integrity.",
+    "paths": [
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "eslint-import-resolver-node@0.3.9",
+        "debug@3.2.7"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "eslint-plugin-import@2.32.0",
+        "debug@3.2.7"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "eslint-plugin-import@2.32.0",
+        "eslint-module-utils@2.12.1",
+        "debug@3.2.7"
+      ]
+    ]
+  },
+  {
+    "name": "ansi-styles",
+    "version": "4.3.0",
+    "severity": "high",
+    "reason": "Transitive of chalk impacted by Sep 8 2025 incident.",
+    "paths": [
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@next/eslint-plugin-next@14.2.10",
+        "glob@10.3.10",
+        "jackspeak@2.3.6",
+        "@isaacs/cliui@8.0.2",
+        "wrap-ansi-cjs@7.0.0",
+        "ansi-styles@4.3.0"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint@8.57.0",
+        "chalk@4.1.2",
+        "ansi-styles@4.3.0"
+      ]
+    ]
+  },
+  {
+    "name": "ansi-styles",
+    "version": "6.2.3",
+    "severity": "high",
+    "reason": "Transitive of chalk impacted by Sep 8 2025 incident.",
+    "paths": [
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@next/eslint-plugin-next@14.2.10",
+        "glob@10.3.10",
+        "jackspeak@2.3.6",
+        "@isaacs/cliui@8.0.2",
+        "wrap-ansi@8.1.0",
+        "ansi-styles@6.2.3"
+      ]
+    ]
+  },
+  {
+    "name": "chalk",
+    "version": "4.1.2",
+    "severity": "high",
+    "reason": "Involved in Sep 8 2025 npm supply-chain incident; ensure clean version.",
+    "paths": [
+      [
+        "choicememo-blog@0.1.0",
+        "eslint@8.57.0",
+        "chalk@4.1.2"
+      ]
+    ]
+  },
+  {
+    "name": "strip-ansi",
+    "version": "6.0.1",
+    "severity": "medium",
+    "reason": "Part of ansi-styles/ansi ecosystem with historic supply-chain risk.",
+    "paths": [
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@next/eslint-plugin-next@14.2.10",
+        "glob@10.3.10",
+        "jackspeak@2.3.6",
+        "@isaacs/cliui@8.0.2",
+        "string-width-cjs@4.2.3",
+        "strip-ansi@6.0.1"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@next/eslint-plugin-next@14.2.10",
+        "glob@10.3.10",
+        "jackspeak@2.3.6",
+        "@isaacs/cliui@8.0.2",
+        "wrap-ansi-cjs@7.0.0",
+        "string-width@4.2.3",
+        "strip-ansi@6.0.1"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@next/eslint-plugin-next@14.2.10",
+        "glob@10.3.10",
+        "jackspeak@2.3.6",
+        "@isaacs/cliui@8.0.2",
+        "wrap-ansi-cjs@7.0.0",
+        "strip-ansi@6.0.1"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint@8.57.0",
+        "strip-ansi@6.0.1"
+      ]
+    ]
+  },
+  {
+    "name": "strip-ansi",
+    "version": "7.1.2",
+    "severity": "medium",
+    "reason": "Part of ansi-styles/ansi ecosystem with historic supply-chain risk.",
+    "paths": [
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@next/eslint-plugin-next@14.2.10",
+        "glob@10.3.10",
+        "jackspeak@2.3.6",
+        "@isaacs/cliui@8.0.2",
+        "string-width@5.1.2",
+        "strip-ansi@7.1.2"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@next/eslint-plugin-next@14.2.10",
+        "glob@10.3.10",
+        "jackspeak@2.3.6",
+        "@isaacs/cliui@8.0.2",
+        "strip-ansi@7.1.2"
+      ],
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@next/eslint-plugin-next@14.2.10",
+        "glob@10.3.10",
+        "jackspeak@2.3.6",
+        "@isaacs/cliui@8.0.2",
+        "wrap-ansi@8.1.0",
+        "strip-ansi@7.1.2"
+      ]
+    ]
+  },
+  {
+    "name": "supports-color",
+    "version": "7.2.0",
+    "severity": "medium",
+    "reason": "Closely tied to chalk ecosystem targeted in incident.",
+    "paths": [
+      [
+        "choicememo-blog@0.1.0",
+        "eslint@8.57.0",
+        "chalk@4.1.2",
+        "supports-color@7.2.0"
+      ]
+    ]
+  },
+  {
+    "name": "wrap-ansi",
+    "version": "8.1.0",
+    "severity": "medium",
+    "reason": "Linked to ansi-styles/chalk incident chain; review transitive integrity.",
+    "paths": [
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@next/eslint-plugin-next@14.2.10",
+        "glob@10.3.10",
+        "jackspeak@2.3.6",
+        "@isaacs/cliui@8.0.2",
+        "wrap-ansi@8.1.0"
+      ]
+    ]
+  },
+  {
+    "name": "@isaacs/cliui",
+    "version": "8.0.2",
+    "severity": "low",
+    "reason": "Dependent on wrap-ansi / ansi-styles targeted chain.",
+    "paths": [
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@next/eslint-plugin-next@14.2.10",
+        "glob@10.3.10",
+        "jackspeak@2.3.6",
+        "@isaacs/cliui@8.0.2"
+      ]
+    ]
+  },
+  {
+    "name": "jackspeak",
+    "version": "2.3.6",
+    "severity": "low",
+    "reason": "Pulled via glob CLI utilities touched during incident due to shared maintainers.",
+    "paths": [
+      [
+        "choicememo-blog@0.1.0",
+        "eslint-config-next@14.2.10",
+        "@next/eslint-plugin-next@14.2.10",
+        "glob@10.3.10",
+        "jackspeak@2.3.6"
+      ]
+    ]
+  }
+]

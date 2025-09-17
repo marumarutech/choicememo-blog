@@ -1,0 +1,14 @@
+﻿node.exe : npm warn exec The following package was not found and will be installed: snyk@1.1299.0
+発生場所 C:\Program Files\nodejs\npx.ps1:29 文字:3
++   & $NODE_EXE $NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm warn exec T...: snyk@1.1299.0:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for mo
+re info.
+{
+  "ok": false,
+  "error": "Use `snyk auth` to authenticate.",
+  "path": "D:\\github\\choicememo-blog"
+}
