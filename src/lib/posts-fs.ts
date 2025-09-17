@@ -33,8 +33,8 @@ export type Post = {
   draft: boolean
   affiliate: boolean
   content: string
-  jsonld: any
-  faqJsonLd?: any
+  jsonld: ReturnType<typeof articleJsonLd>
+  faqJsonLd?: ReturnType<typeof faqJsonLd>
 }
 
 const CONTENT_DIR = path.join(process.cwd(), 'content', 'posts')
@@ -136,6 +136,7 @@ export async function getPopularPosts(limit = 10) {
   const all = await getAllPosts()
   if (!POPULAR_SLUGS.length) return all.slice(0, limit)
   const map = new Map(all.map((post) => [post.slug, post]))
-  return POPULAR_SLUGS.map((slug) => map.get(slug)).filter(Boolean).slice(0, limit) as Post[]
+  return POPULAR_SLUGS.map((slug) => map.get(slug))
+    .filter((post): post is Post => Boolean(post))
+    .slice(0, limit)
 }
-

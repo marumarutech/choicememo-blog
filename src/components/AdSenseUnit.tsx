@@ -8,10 +8,15 @@ type Props = {
   className?: string
 }
 
+declare global {
+  interface Window {
+    adsbygoogle?: Array<Record<string, unknown>>
+  }
+}
+
 export default function AdSenseUnit({ slot, format = 'auto', responsive = true, className }: Props) {
   useEffect(() => {
     try {
-      // @ts-ignore
       ;(window.adsbygoogle = window.adsbygoogle || []).push({})
     } catch {}
   }, [])
@@ -29,4 +34,3 @@ export default function AdSenseUnit({ slot, format = 'auto', responsive = true, 
     </div>
   )
 }
-
