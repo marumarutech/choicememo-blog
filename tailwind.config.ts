@@ -26,6 +26,7 @@ export default {
           primary: '#1E40AF',
           primaryHover: '#1D4ED8',
           accent: '#C2410C',
+          accentHover: '#9A3412',
           accentSoft: '#FBE8D6',
           text: '#111827',
           muted: '#4C566A',
