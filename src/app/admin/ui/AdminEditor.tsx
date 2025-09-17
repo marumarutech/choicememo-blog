@@ -1,8 +1,10 @@
 "use client"
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { signIn, signOut, useSession } from 'next-auth/react'
 
 type PostType = 'best' | 'review' | 'guide' | 'news' | 'deals'
+
+type UploadNotice = { type: 'success' | 'error'; text: string }
 
 function today() {
   const d = new Date()
@@ -31,6 +33,9 @@ export default function AdminEditor() {
   const [publishedAt, setPublishedAt] = useState(today())
   const [updatedAt, setUpdatedAt] = useState(today())
   const [hero, setHero] = useState('')
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [imageNotice, setImageNotice] = useState<UploadNotice | null>(null)
+  const [lastImagePath, setLastImagePath] = useState<string | null>(null)
   const [draft, setDraft] = useState(false)
   const [body, setBody] = useState('<Lead>この記事の要点（3〜5行）</Lead>\n\n## 見出し\n\n本文を書いてください。')
   const [previewHtml, setPreviewHtml] = useState('')
@@ -43,6 +48,7 @@ export default function AdminEditor() {
   const [slugWarn, setSlugWarn] = useState<string | null>(null)
   const [tab, setTab] = useState<'new' | 'existing'>('new')
   const [list, setList] = useState<{ file: string; slug: string | null; title: string | null; type: string | null; draft: boolean; publishedAt: string | null }[]>([])
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const mdx = useMemo(() => {
     const tagsArr = tags
@@ -64,6 +70,8 @@ export default function AdminEditor() {
       `---\n\n` +
       body + '\n'
   }, [title, slug, description, type, tags, publishedAt, updatedAt, hero, draft, body])
+
+  const lastImageMarkdown = lastImagePath ? `![${title || slug || 'image'}](${lastImagePath})` : ''
 
   // 初期メタ（スラッグ/タグ/一覧）
   useEffect(() => {
@@ -126,6 +134,142 @@ export default function AdminEditor() {
     a.click()
     a.remove()
     URL.revokeObjectURL(url)
+  }
+
+  function triggerImageUpload() {
+    setImageNotice(null)
+    fileInputRef.current?.click()
+  }
+
+  async function handleImageFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+
+    event.target.value = ''
+    setImageNotice(null)
+
+    const mimeToExt: Record<string, string> = {
+      'image/png': 'png',
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/webp': 'webp',
+      'image/gif': 'gif',
+    }
+
+    const allowedExt = new Set(['png', 'jpg', 'jpeg', 'webp', 'gif'])
+    let ext = mimeToExt[file.type as keyof typeof mimeToExt] || file.name.split('.').pop()?.toLowerCase() || ''
+    if (ext === 'jpeg') {
+      ext = 'jpg'
+    }
+
+    if (!allowedExt.has(ext)) {
+      setImageNotice({ type: 'error', text: '対応していない画像形式です (png/jpg/webp/gif)。' })
+      return
+    }
+
+    const baseName = file.name.replace(/\.[^.]+$/, '')
+    const safeBase = slugify(baseName || 'image').replace(/[^a-z0-9-]/g, '')
+    const slugPart = slug ? slug.replace(/[^a-z0-9-]/g, '') : ''
+    const filenameBase = [slugPart, safeBase].filter(Boolean).join('-') || 'image'
+    const filename = `${filenameBase}-${Date.now()}.${ext}`
+
+    let dataUrl: string
+    try {
+      dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve((reader.result as string) || '')
+        reader.onerror = () => reject(new Error('Failed to read file'))
+        reader.readAsDataURL(file)
+      })
+    } catch {
+      setImageNotice({ type: 'error', text: 'ファイルの読み込みに失敗しました。' })
+      return
+    }
+
+    const payload: Record<string, string> = { filename, dataUrl }
+    const targetBranch = branch.trim()
+    if (targetBranch) {
+      payload.branch = targetBranch
+    }
+
+    setUploadingImage(true)
+    try {
+      const res = await fetch('/api/content/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        throw new Error(json?.error || '画像のアップロードに失敗しました')
+      }
+      const savedPath = typeof json.path === 'string' ? json.path : `/${filename}`
+      setLastImagePath(savedPath)
+      if (!hero) {
+        setHero(savedPath)
+      }
+      setImageNotice({ type: 'success', text: `画像をアップロードしました: ${savedPath}` })
+    } catch (error) {
+      console.error(error)
+      setImageNotice({ type: 'error', text: error instanceof Error ? error.message : '画像のアップロードに失敗しました' })
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  function copyText(value: string, successMessage: string) {
+    const fallback = () => {
+      try {
+        const textarea = document.createElement('textarea')
+        textarea.value = value
+        textarea.style.position = 'fixed'
+        textarea.style.opacity = '0'
+        document.body.appendChild(textarea)
+        textarea.focus()
+        textarea.select()
+        const ok = document.execCommand('copy')
+        document.body.removeChild(textarea)
+        if (ok) {
+          setImageNotice({ type: 'success', text: successMessage })
+        } else {
+          throw new Error('copy command failed')
+        }
+      } catch {
+        setImageNotice({ type: 'error', text: 'クリップボードにコピーできませんでした。' })
+      }
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(value).then(() => {
+        setImageNotice({ type: 'success', text: successMessage })
+      }).catch(() => {
+        fallback()
+      })
+    } else {
+      fallback()
+    }
+  }
+
+  function copyImageUrl(path: string) {
+    copyText(path, '画像URLをコピーしました。')
+  }
+
+  function copyImageMarkdown(path: string) {
+    const alt = title || slug || 'image'
+    copyText(`![${alt}](${path})`, 'Markdownをコピーしました。')
+  }
+
+  function insertImageSnippet(path: string) {
+    const alt = title || slug || 'image'
+    insert(`![${alt}](${path})`)
+    setImageNotice({ type: 'success', text: '本文に画像を挿入しました。' })
+  }
+
+  function useImageAsHero(path: string) {
+    setHero(path)
+    setImageNotice({ type: 'success', text: `ヒーロー画像に設定しました: ${path}` })
   }
 
   function insert(text: string) {
@@ -286,6 +430,39 @@ export default function AdminEditor() {
         </div>
 
         <aside className="space-y-3">
+          <div className="rounded border p-3 space-y-2">
+            <div className="text-sm font-semibold">画像アップロード</div>
+            <p className="text-xs text-gray-600">public/images/ に保存します。完了後にリンクをコピーして記事へ貼り付けてください。</p>
+            <div className="flex flex-wrap gap-2 text-xs">
+              <input ref={fileInputRef} className="hidden" type="file" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" onChange={handleImageFileChange} />
+              <button type="button" className="rounded border px-3 py-1 disabled:opacity-50" onClick={triggerImageUpload} disabled={uploadingImage}>
+                {uploadingImage ? 'アップロード中…' : '画像を選択'}
+              </button>
+            </div>
+            {lastImagePath ? (
+              <div className="space-y-2 rounded border bg-gray-50 p-2">
+                <div className="font-mono text-xs break-all">{lastImagePath}</div>
+                {lastImageMarkdown ? (
+                  <div>
+                    <div className="text-[11px] text-gray-500">Markdown</div>
+                    <code className="block break-all bg-white px-2 py-1 text-[11px] text-gray-700">{lastImageMarkdown}</code>
+                  </div>
+                ) : null}
+                <div className="flex flex-wrap gap-2 text-xs">
+                  <button type="button" className="rounded border px-2 py-1" onClick={() => copyImageUrl(lastImagePath)}>URLをコピー</button>
+                  <button type="button" className="rounded border px-2 py-1" onClick={() => copyImageMarkdown(lastImagePath)}>Markdownをコピー</button>
+                  <button type="button" className="rounded border px-2 py-1" onClick={() => insertImageSnippet(lastImagePath)}>本文に挿入</button>
+                  <button type="button" className="rounded border px-2 py-1" onClick={() => useImageAsHero(lastImagePath)}>Heroに設定</button>
+                </div>
+              </div>
+            ) : null}
+            {imageNotice ? (
+              <p className={`text-xs ${imageNotice.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                {imageNotice.text}
+              </p>
+            ) : null}
+          </div>
+
           <div className="rounded border p-3">
             <div className="mb-2 text-sm font-semibold">出力</div>
             <div className="flex gap-2">
