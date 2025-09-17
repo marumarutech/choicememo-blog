@@ -32,7 +32,8 @@ export async function GET() {
     }
 
     return Response.json({ items })
-  } catch (error: any) {
-    return new Response(JSON.stringify({ error: error?.message || 'Failed to list posts' }), { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to list posts'
+    return new Response(JSON.stringify({ error: message }), { status: 500 })
   }
 }

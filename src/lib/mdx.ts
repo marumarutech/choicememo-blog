@@ -28,7 +28,7 @@ const components = {
 
 export async function renderMDX(post: Post) {
   const { content } = post
-  const mdx = await compileMDX<{}>({
+  const mdx = await compileMDX<Record<string, unknown>>({
     source: content,
     components,
     options: {

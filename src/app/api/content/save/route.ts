@@ -14,8 +14,7 @@ function isValidSlug(slug: string) {
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
-  // @ts-ignore
-  const token: string | undefined = session?.accessToken
+  const token = session?.accessToken
   if (!session || !token) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })
   }

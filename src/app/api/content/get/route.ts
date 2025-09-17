@@ -15,8 +15,8 @@ export async function GET(request: Request) {
     const full = path.join(CONTENT_DIR, filename)
     const raw = await fs.readFile(full, 'utf-8')
     return new Response(raw, { headers: { 'Content-Type': 'text/markdown; charset=utf-8' } })
-  } catch (e: any) {
-    return new Response(JSON.stringify({ error: e?.message || 'Not found' }), { status: 404 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Not found'
+    return new Response(JSON.stringify({ error: message }), { status: 404 })
   }
 }
-

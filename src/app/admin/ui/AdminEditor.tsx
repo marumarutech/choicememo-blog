@@ -271,7 +271,7 @@ export default function AdminEditor() {
     setToast({ type: 'success', text: '本文に画像を挿入しました。' })
   }
 
-  function useImageAsHero(path: string) {
+  function setHeroFromImage(path: string) {
     setHero(path)
     setToast({ type: 'success', text: `ヒーロー画像に設定しました: ${path}` })
   }
@@ -649,7 +649,7 @@ export default function AdminEditor() {
                   <button type="button" className={smallButtonClass} onClick={() => copyImageUrl(lastImagePath)}>URLをコピー</button>
                   <button type="button" className={smallButtonClass} onClick={() => copyImageMarkdown(lastImagePath)}>Markdownをコピー</button>
                   <button type="button" className={smallButtonClass} onClick={() => insertImageSnippet(lastImagePath)}>本文に挿入</button>
-                  <button type="button" className={smallButtonClass} onClick={() => useImageAsHero(lastImagePath)}>Heroに設定</button>
+                  <button type="button" className={smallButtonClass} onClick={() => setHeroFromImage(lastImagePath)}>Heroに設定</button>
                 </div>
               </div>
             ) : null}
