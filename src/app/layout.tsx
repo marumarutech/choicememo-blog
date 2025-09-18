@@ -28,10 +28,10 @@ const bodyFont = Noto_Sans_JP({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'ChoiceMemo | 選択肢を整理して成果につなげる',
+    default: 'ChoiceMemo（チョイスメモ） | 選択肢を整えて成果につなげる',
     template: '%s | ChoiceMemo',
   },
-  description: '投資・筋トレ・ガジェット・セール・ニュースを横断して、選ぶ力と実行力を高めるためのレビューと比較情報を届けます。',
+  description: 'ChoiceMemo（チョイスメモ）は、投資・筋トレ・ガジェット・セール・トピックの5カテゴリを横断して選択肢を整理できる情報サイトです。',
   alternates: {
     types: {
       'application/rss+xml': '/rss.xml',
@@ -65,7 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   ChoiceMemo
                 </Link>
                 <p className="mt-2 text-sm text-brand-muted">
-                  5つのカテゴリを横断して選択肢を整理できる情報サイトです。                </p>
+                  ChoiceMemo（チョイスメモ）は、5つのカテゴリを横断して選択肢を整理できる情報サイトです。</p>
               </div>
               <div className="flex w-full flex-col gap-4 lg:w-auto lg:flex-row lg:items-center">
                 <nav className="flex flex-wrap gap-3 text-sm font-medium text-brand-muted">
