@@ -5,6 +5,15 @@ import { z } from 'zod'
 import { articleJsonLd, faqJsonLd } from './seo'
 import { CATEGORIES, CATEGORY_KEYS, type CategoryKey } from '@config/categories'
 
+const DraftField = z.preprocess((value) => {
+  if (typeof value === 'string') {
+    const lowered = value.toLowerCase()
+    if (lowered === 'on') return false
+    if (lowered === 'off') return true
+  }
+  return value
+}, z.boolean().default(false))
+
 const Frontmatter = z.object({
   title: z.string(),
   slug: z.string(),
@@ -14,7 +23,7 @@ const Frontmatter = z.object({
   date: z.string(),
   updated: z.string().optional(),
   hero: z.string().optional(),
-  draft: z.boolean().default(false),
+  draft: DraftField,
   affiliate: z.boolean().default(false),
   faqs: z.array(z.object({ question: z.string(), answer: z.string() })).optional(),
 })
