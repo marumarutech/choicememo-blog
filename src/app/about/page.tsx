@@ -36,7 +36,7 @@ export default function AboutPage() {
       <section className="space-y-4">
         <h2 className="font-heading text-xl font-semibold text-brand-text">運営履歴</h2>
         <p className="text-sm text-brand-muted">
-          2025年9月にサイトを公開。投資、フィットネス、ガジェット、セール情報、時事トピックの5カテゴリを軸にコンテンツを拡充しています。
+          2025年9月にサイトを公開。投資、フィットネス、ガジェット、IT・テクノロジー、セール情報、時事トピックの6カテゴリを軸にコンテンツを拡充しています。
         </p>
       </section>
     </div>

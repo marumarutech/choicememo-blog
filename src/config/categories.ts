@@ -1,11 +1,11 @@
-﻿export type CategoryMeta = {
+export type CategoryMeta = {
   label: string
   path: string
   blurb: string
   monetization: string
 }
 
-export const CATEGORY_KEYS = ['invest', 'fitness', 'gadgets', 'deals', 'topics'] as const
+export const CATEGORY_KEYS = ['invest', 'fitness', 'gadgets', 'technology', 'deals', 'topics'] as const
 export type CategoryKey = typeof CATEGORY_KEYS[number]
 
 export const CATEGORIES: Record<CategoryKey, CategoryMeta> = {
@@ -16,7 +16,7 @@ export const CATEGORIES: Record<CategoryKey, CategoryMeta> = {
     monetization: '証券会社のキャンペーンや投資サービスの紹介による収益化を想定しています。'
   },
   fitness: {
-    label: '筋トレ・ボディメイク',
+    label: '筋トレ・ダイエット',
     path: '/fitness',
     blurb: 'トレーニングメニューや栄養管理、サプリ選びをわかりやすく整理するカテゴリです。',
     monetization: 'プロテイン・サプリ・ホームジム用品などのアフィリエイト連携を中心に想定しています。'
@@ -26,6 +26,12 @@ export const CATEGORIES: Record<CategoryKey, CategoryMeta> = {
     path: '/gadgets',
     blurb: '生活を効率化するデバイスやツールをレビューし、比較できるように整理するカテゴリです。',
     monetization: 'Amazonや家電量販店のアフィリエイト、スポンサー連携を想定しています。'
+  },
+  technology: {
+    label: 'IT・テクノロジー',
+    path: '/technology',
+    blurb: 'IT業界の最新動向やプロダクト、サービス活用術を横断的に整理するカテゴリです。',
+    monetization: 'SaaSやITスクール、ガジェット関連サービスの紹介による収益化を想定しています。'
   },
   deals: {
     label: 'セール・お得情報',

@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     default: 'ChoiceMemo（チョイスメモ） | 選択肢を整えて成果につなげる',
     template: '%s | ChoiceMemo',
   },
-  description: 'ChoiceMemo（チョイスメモ）は、投資・筋トレ・ガジェット・セール・トピックの5カテゴリを横断して選択肢を整理できる情報サイトです。',
+  description: 'ChoiceMemo（チョイスメモ）は、投資・筋トレ・ダイエット・ガジェット・IT・テクノロジー・セール・トピックの6カテゴリを横断して選択肢を整理できる情報サイトです。',
   alternates: {
     types: {
       'application/rss+xml': '/rss.xml',
@@ -65,32 +65,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   ChoiceMemo
                 </Link>
                 <p className="mt-2 text-sm text-brand-muted">
-                  ChoiceMemo（チョイスメモ）は、5つのカテゴリを横断して選択肢を整理できる情報サイトです。
+                  ChoiceMemo（チョイスメモ）は、6つのカテゴリを横断して選択肢を整理できる情報サイトです。
                 </p>
               </div>
               <div className="flex w-full flex-col gap-4 lg:w-auto lg:flex-row lg:items-center">
-                <nav className="flex flex-wrap gap-3 text-sm font-medium text-brand-muted">
+                <nav className="grid grid-cols-2 gap-3 text-sm font-medium text-brand-muted sm:grid-cols-3 lg:flex lg:flex-wrap">
                   {CATEGORY_ORDER.map((key) => {
                     const meta = CATEGORIES[key]
                     return (
                       <Link
                         key={key}
                         href={meta.path as Route}
-                        className="rounded-full border border-brand-border bg-brand-surface px-4 py-2 shadow-subtle transition hover:border-brand-primaryHover/40 hover:text-brand-primaryHover"
+                        className="rounded-full border border-brand-border bg-brand-surface px-3 py-2 shadow-subtle transition hover:border-brand-primaryHover/40 hover:text-brand-primaryHover sm:px-4"
                       >
                         {meta.label}
                       </Link>
                     )
                   })}
                 </nav>
-                <form action="/search" className="relative w-full lg:w-64">
+                <form action="/search" className="relative w-full min-w-[200px] lg:w-72">
                   <input
                     type="search"
                     name="q"
-                    placeholder="キーワードで検索"
+                    placeholder="キーワード検索"
+                    aria-label="キーワード検索"
                     className="w-full rounded-full border border-brand-border bg-brand-surface px-4 py-2 text-sm text-brand-text placeholder:text-brand-muted focus:border-brand-primaryHover focus:outline-none focus:ring-2 focus:ring-brand-ring/60"
                   />
-                  <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-brand-muted">⌘K</span>
                 </form>
               </div>
             </div>

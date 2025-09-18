@@ -36,7 +36,7 @@ export const CATEGORY_TEMPLATES: Record<CategoryKey, CategoryTemplate> = {
     ].join('\n'),
   },
   fitness: {
-    title: '筋トレ・ボディメイク週報',
+    title: '筋トレ・ダイエット週報',
     description: 'トレーニングメニューと栄養・リカバリーをワンペインで振り返れる構成。',
     outline: ['一週間の所感', 'メニュー記録', '栄養と体調', '次回アクション'],
     body: [
