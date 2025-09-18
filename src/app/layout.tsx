@@ -28,10 +28,10 @@ const bodyFont = Noto_Sans_JP({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'ChoiceMemo\uff08\u30c1\u30e7\u30a4\u30b9\u30e1\u30e2\uff09\u306f\u30015\u3064\u306e\u30ab\u30c6\u30b4\u30ea\u3092\u6a2a\u65ad\u3057\u3066\u9078\u629e\u80a2\u3092\u6574\u7406\u3067\u304d\u308b\u60c5\u5831\u30b5\u30a4\u30c8\u3067\u3059\u3002',
+    default: 'ChoiceMemo（チョイスメモ） | 選択肢を整えて成果につなげる',
     template: '%s | ChoiceMemo',
   },
-  description: 'ChoiceMemo\uff08\u30c1\u30e7\u30a4\u30b9\u30e1\u30e2\uff09\u306f\u3001\u6295\u8cc7\u30fb\u7b4b\u30c8\u30ec\u30fb\u30ac\u30b8\u30a7\u30c3\u30c8\u30fb\u30bb\u30fc\u30eb\u30fb\u30c8\u30d4\u30c3\u30af\u306e5\u30ab\u30c6\u30b4\u30ea\u3092\u6a2a\u65ad\u3057\u3066\u9078\u629e\u80a2\u3092\u6574\u7406\u3067\u304d\u308b\u60c5\u5831\u30b5\u30a4\u30c8\u3067\u3059\u3002',
+  description: 'ChoiceMemo（チョイスメモ）は、投資・筋トレ・ガジェット・セール・トピックの5カテゴリを横断して選択肢を整理できる情報サイトです。',
   alternates: {
     types: {
       'application/rss+xml': '/rss.xml',
@@ -65,7 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   ChoiceMemo
                 </Link>
                 <p className="mt-2 text-sm text-brand-muted">
-                  ChoiceMemo (Choi-su Memo) helps organize options across five categories. 
+                  ChoiceMemo（チョイスメモ）は、5つのカテゴリを横断して選択肢を整理できる情報サイトです。
                 </p>
               </div>
               <div className="flex w-full flex-col gap-4 lg:w-auto lg:flex-row lg:items-center">
