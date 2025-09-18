@@ -23,18 +23,18 @@ export default async function HomePage() {
           <section className="rounded-2xl border border-brand-border bg-brand-surface p-6 shadow-subtle md:p-8 md:shadow-soft">
             <p className="text-sm uppercase tracking-[0.2em] text-brand-primary">Featured</p>
             <h1 className="mt-4 max-w-2xl font-heading text-3xl font-semibold text-brand-text lg:text-4xl">
-              5つの主要カテゴリから『今押さえたい』選択肢を素早く比較
+              6つの主要カテゴリから『今押さえたい』選択肢を素早く比較
             </h1>
             <p className="mt-4 max-w-3xl text-sm text-brand-muted">
-              投資・筋トレ・ガジェット・セール・トピックスをワンストップでチェック。
+              投資・筋トレ・ダイエット・ガジェット・IT・テクノロジー・セール・トピックスをワンストップでチェック。
               比較表とレビューで『読んですぐ行動できる』構成に整えました。
             </p>
-            <div className="mt-6 flex flex-wrap gap-3 text-xs text-brand-muted">
+            <div className="mt-6 grid grid-cols-2 gap-3 text-xs text-brand-muted sm:grid-cols-3 md:flex md:flex-wrap">
               {CATEGORY_ORDER.map((key) => (
                 <a
                   key={key}
                   href={CATEGORIES[key].path}
-                  className="rounded-full border border-brand-border bg-brand-surface px-3 py-1 shadow-subtle transition hover:border-brand-primaryHover/40 hover:text-brand-primaryHover"
+                  className="rounded-full border border-brand-border bg-brand-surface px-3 py-1 shadow-subtle transition hover:border-brand-primaryHover/40 hover:text-brand-primaryHover sm:px-4"
                 >
                   {CATEGORIES[key].label}
                 </a>

@@ -36,7 +36,7 @@ export const CATEGORY_TEMPLATES: Record<CategoryKey, CategoryTemplate> = {
     ].join('\n'),
   },
   fitness: {
-    title: '筋トレ・ボディメイク週報',
+    title: '筋トレ・ダイエット週報',
     description: 'トレーニングメニューと栄養・リカバリーをワンペインで振り返れる構成。',
     outline: ['一週間の所感', 'メニュー記録', '栄養と体調', '次回アクション'],
     body: [
@@ -79,6 +79,28 @@ export const CATEGORY_TEMPLATES: Record<CategoryKey, CategoryTemplate> = {
       '',
       '<CTAButtons links={[{ label: "公式ストア", href: "https://" }, { label: "Amazon", href: "https://" }]} />',
     ].join('\n'),
+  },
+  technology: {
+    title: 'IT・テクノロジー速報レポート',
+    description: 'SaaSや新機能のリリース、業界ニュースを1ページで整理するテンプレート。',
+    outline: ['今週のアップデート', '注目プロダクト', '活用アイデア', '次のアクション'],
+    body: [
+      lead('開発・業務改善につながりそうな最新ITトピックを短時間で共有できる形にまとめます。'),
+      '## 今週のアップデート',
+      '- SaaS/クラウド: ___\\n- セキュリティ: ___\\n- AI/データ: ___',
+      '',
+      '## 注目プロダクト・機能',
+      '- リリースノートの要約や導入検討ポイントを箇条書きで整理',
+      '',
+      '## 活用アイデアとリスク',
+      '- チームで試したい使い方\\n- 想定されるメリット / リスク',
+      '',
+      '## 次のアクション',
+      '- 社内共有や検証タスク\\n- 担当者 / 期限のメモ',
+      '',
+      '### 参考リンク',
+      '- [公式ドキュメント](https://)\\n- [関連ブログ](https://)',
+    ].join('\\n'),
   },
   deals: {
     title: 'セール・お得情報速報',
