@@ -65,7 +65,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   ChoiceMemo
                 </Link>
                 <p className="mt-2 text-sm text-brand-muted">
-                  ChoiceMemo（チョイスメモ）は、5つのカテゴリを横断して選択肢を整理できる情報サイトです。</p>
+                  ChoiceMemo（チョイスメモ）は、5つのカテゴリを横断して選択肢を整理できる情報サイトです。
+                </p>
               </div>
               <div className="flex w-full flex-col gap-4 lg:w-auto lg:flex-row lg:items-center">
                 <nav className="flex flex-wrap gap-3 text-sm font-medium text-brand-muted">
