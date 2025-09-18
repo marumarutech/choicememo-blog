@@ -16,7 +16,7 @@ tags: ["健康","プロテイン","比較"]
 publishedAt: "2025-09-15"
 updatedAt: "2025-09-15"
 hero: "/images/protein-hero.jpg"
-draft: false
+draft: on                # on=public / off=hidden
 # 任意: FAQ（構造化データに反映）
 faqs:
   - question: "初心者はどれを選ぶべき？"
@@ -38,7 +38,7 @@ faqs:
 - Deals: 割引要点 → 期間/条件 → 対象商品（CTA）→ 関連 Best/Review
 
 ## ルール
-- ドラフト（`draft: true`）は一覧・詳細・RSS・サイトマップから除外
+- Use `draft: off` to hide the post from listings, detail pages, and RSS feeds.
 - News の URL は `publishedAt` の年月から自動で `/news/yyyy-mm/slug`
 - スラッグは英小文字＋ハイフン、日本語URLは使用しない
 
