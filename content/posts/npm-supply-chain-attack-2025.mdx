@@ -1,0 +1,142 @@
+﻿---
+title: "npmサプライチェーン攻撃の裏側と防御ガイド"
+slug: "npm-supply-chain-attack-2025"
+description: "2025年9月8日に発生した debug や chalk など人気パッケージ乗っ取り事件を振り返り、攻撃の流れと再発防止のために実施した 9 ステップの対策を詳しく解説します。"
+category: "security"
+tags: ["npm", "サプライチェーン", "セキュリティ"]
+date: "2025-09-17"
+updated: "2025-09-17"
+hero: "/images/posts/npm-supply-chain-2025.png"
+affiliate: false
+draft: false
+---
+
+<Lead>
+  2025 年 9 月 8 日に発生した npm サプライチェーン攻撃では、debug や chalk
+  など約 18
+  個の人気パッケージが一時的に乗っ取られ、悪意あるバージョンが配布されました。本記事では攻撃の全体像と、実際のプロジェクトで行ったフェイルセーフ手順を
+  9 ステップで紹介します。
+</Lead>
+
+## 事件の概要と影響
+
+- **発生日**: 2025 年 9 月 8 日（世界標準時）
+- **影響範囲**: debug / chalk / ansi-styles など CLI・ビルドツールで広く利用される約 18 パッケージ
+- **攻撃シナリオ**: メンテナー宛フィッシング → 2FA リセット偽装 → アカウント乗っ取り → 悪意あるリリース公開
+- **影響**: 汚染版は短時間で削除されたが、依存プロジェクトが自動でインストールしてしまうリスクが高かった
+
+Palo Alto Networks や OX Security の速報によれば、攻撃は世界各地の開発チームに波及する可能性があったとされています。特に debug や chalk は ESLint や Next.js など多くのツールに組み込まれているため、CI/CD を経由して本番環境まで侵入する恐れがありました。
+
+## 攻撃の流れを分解する
+
+1. **フィッシングメールの送付** — メンテナーに対し「2FA を再設定してほしい」と装ったメールが送信され、偽サイトへ誘導。
+2. **認証情報の奪取** — 偽フォームで入力させたログイン情報とワンタイムコードを攻撃者が取得。
+3. **アカウント乗っ取り** — 正規メンテナーのアカウントでサインインし、悪意のあるバージョンを公開。
+4. **汚染版の短期拡散** — npm の自動更新や CI が汚染版を取得し、ビルド・デプロイに影響。
+5. **削除と復旧** — npm 側が異常を検知してバージョンを削除。ただし一度インストールした依存やキャッシュには残るため、個々のプロジェクトでの対応が必要に。
+
+Stylus パッケージで起きた誤 ban（セキュリティ保留扱いによる削除）も記憶に新しく、「悪意の混入」と「誤検知による不可用性」の両方に備えた運用の重要性が浮き彫りになりました。
+
+## 実施した 9 ステップのフェイルセーフ
+
+攻撃発覚後、リポジトリでは以下の 9 ステップを順に実施し、証跡をすべて `.reports/` に保存しました。
+
+### 1. Safe Install — `npm install --ignore-scripts`
+
+ライフサイクルスクリプトが悪用されるケースを避けるため、`npm install --ignore-scripts` で依存を再取得。これにより、postinstall などを通じてマルウェアが実行されるリスクを遮断します。
+
+### 2. 依存ツリーと SBOM の取得
+
+- `npm ls --all > .reports/dependency-tree.txt`
+- `npm ls --all --json > .reports/dependency-tree.json`
+- `npx @cyclonedx/cyclonedx-npm --output-format json --output-file .reports/sbom.json`
+
+CycloneDX SBOM は第三者への共有や将来の比較にも利用できるため、初動で生成しておくと便利です。
+
+### 3. 監査コマンドの実行
+
+- `npm audit --json > .reports/npm-audit.json`
+- `npx socket@latest ci --report --no-interactive --json > .reports/socket-ci.json`（API トークン未設定で認証エラーをログ化）
+- `npx snyk test --json > .reports/snyk-test.json`（同じく認証エラー）
+
+外部監査ツールはトークンを提供すればより精度の高い結果が得られます。今回は「未認証で失敗すること」を事実として残し、後続対応事項として記録しました。
+
+### 4. ライフサイクルスクリプト検出
+
+`node_modules` を走査して 257 個のパッケージがインストール系スクリプトを持つことを確認し、`.reports/lifecycle-scripts.json` に出力。怪しい挙動の温床になりやすい箇所が可視化されます。
+
+### 5. 要注意パッケージの列挙
+
+今回の incident で名指しされたパッケージをウォッチリスト化し、依存ツリーから該当ノードを抽出。結果を `.reports/suspects.json` にまとめ、どの経路で導入されているか把握しました。
+
+### 6. ロックファイル差分の確認
+
+`git diff -- package-lock.json > .reports/lock-diff.txt`
+
+差分が空であればロックファイルに想定外の変更はない、という安心材料になります。
+
+### 7. 危険依存のピン止めと自動チェック
+
+`package.json` の `overrides` を使い、debug / chalk / ansi-styles などを安全なバージョンに固定。さらに `scripts/check-supplychain-pins.js` で `.reports/dependency-tree.json` を検証し、ピンが効いているか CI 上で確認できるようにしました。
+
+### 8. レポート生成
+
+- `.reports/security-summary.md` — 人向けのまとめ
+- `.reports/details.json` — 機械可読な詳細レポート
+
+監査ログや SBOM へのリンク、実施ステップのステータスを併記し、後から見返したときに「何をやったか」が一目で分かります。
+
+### 9. ブランチと PR の準備
+
+`chore/supplychain-guard-2025-09-17` ブランチを切り、`security-summary.md` を PR 本文に流用できるようにしています。インシデント対応は証跡の明文化がとても重要です。
+
+## 同じ対策を再現する手順書
+
+以下のコマンド群を順番に実行すれば、他のプロジェクトでも同様のガード体制を構築できます。
+
+```bash
+# 1. 安全なインストール
+npm install --ignore-scripts
+
+# 2. 依存ツリーと SBOM
+npm ls --all > .reports/dependency-tree.txt
+npm ls --all --json > .reports/dependency-tree.json
+npx @cyclonedx/cyclonedx-npm --output-format json --output-file .reports/sbom.json
+
+# 3. 監査ログ
+npm audit --json > .reports/npm-audit.json
+npx socket@latest ci --report --no-interactive --json > .reports/socket-ci.json
+npx snyk test --json > .reports/snyk-test.json
+
+# 4. ライフサイクルスクリプト検出（自作スクリプト例）
+node scripts/list-lifecycle-scripts.js > .reports/lifecycle-scripts.json
+
+# 5. 要注意パッケージ抽出（カスタムスクリプトで対応）
+node scripts/list-suspect-deps.js > .reports/suspects.json
+
+# 6. ロックファイル差分
+git diff -- package-lock.json > .reports/lock-diff.txt
+```
+
+手順 7 〜 9 については、プロジェクト固有の要件に応じて `overrides` の対象や CI の実行タイミングを調整してください。
+
+## 防御策のベストプラクティス
+
+- **初動対応をテンプレ化** — 「依存を安全に再インストール → 監査ログ → SBOM」の流れを Runbook 化し、だれが担当しても同じ作業ができるようにする。
+- **継続的な SBOM 更新** — 依存を更新したら SBOM も更新し、前回との差分を確認。異常があればすぐに気付けます。
+- **複数の監査ソースを活用** — npm audit だけでは検出できないケースがあるため、Socket.dev や Snyk、OX Security などを併用する。
+- **メンテナー側のセキュリティ** — 2FA をハードウェアトークンに移行し、フィッシングメールに引っかからないための教育を徹底。
+- **可用性リスクへの備え** — Stylus の誤 ban 事件のように正当なパッケージが突然消えることもある。npm ミラーや lockfile/SBOM のバックアップを準備しておく。
+- **CI/CD のガードレール** — 今回用意した `supplychain-guard.yml` のように、定期的な監査とピンチェックを pipeline に組み込み、自動で「安全側へ倒れる」仕組みを作る。
+
+## まとめと呼びかけ
+
+2025 年 9 月 8 日のサプライチェーン攻撃は、「信頼しているオープンソース依存が突然裏切る」ことを改めて示しました。悪意あるバージョンが削除されたあとも、キャッシュや lockfile の状態によっては依然として危険が残ります。
+
+本記事で紹介した 9 ステップを活用し、
+
+1. **安全な初動** を徹底する
+2. **SBOM と監査ログ** を常に最新化する
+3. **CI による抑止力** を高める
+
+という 3 本柱を自分のプロジェクトにも導入してみてください。備えがあるだけで、次の supply chain 攻撃を早期に検知・封じ込めることができます。
