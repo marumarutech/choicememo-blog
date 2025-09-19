@@ -1,5 +1,5 @@
-const DEFAULT_MIN = 120
-const DEFAULT_MAX = 980
+const DEFAULT_MIN = 11
+const DEFAULT_MAX = 222
 
 // Creates a stable pseudo-random number from the provided seed string.
 function hashString(seed: string): number {
