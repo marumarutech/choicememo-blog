@@ -1,4 +1,4 @@
-import fs from 'node:fs/promises'
+﻿import fs from 'node:fs/promises'
 import path from 'node:path'
 import matter from 'gray-matter'
 import { z } from 'zod'
@@ -72,7 +72,7 @@ function toUrl(category: CategoryKey, slug: string) {
 
 export async function getAllPosts(opts?: { limit?: number }): Promise<Post[]> {
   const files = await readAllFiles()
-  const posts: Post[] = []
+  const items: Array<{ post: Post; fileBirthtimeMs: number; fileMtimeMs: number }> = []
 
   for (const file of files) {
     const raw = await fs.readFile(file, 'utf-8')
@@ -80,8 +80,9 @@ export async function getAllPosts(opts?: { limit?: number }): Promise<Post[]> {
     const parsed = Frontmatter.parse(data)
     if (parsed.draft) continue
 
+    const stat = await fs.stat(file)
     const url = toUrl(parsed.category, parsed.slug)
-    posts.push({
+    const post: Post = {
       id: file,
       category: parsed.category,
       slug: parsed.slug,
@@ -105,11 +106,36 @@ export async function getAllPosts(opts?: { limit?: number }): Promise<Post[]> {
         tags: parsed.tags,
       }),
       faqJsonLd: parsed.faqs?.length ? faqJsonLd(parsed.faqs) : undefined,
+    }
+
+    const birthtimeMs = Number.isFinite(stat.birthtimeMs) && stat.birthtimeMs > 0
+      ? stat.birthtimeMs
+      : stat.ctimeMs ?? stat.mtimeMs
+
+    items.push({
+      post,
+      fileBirthtimeMs: birthtimeMs,
+      fileMtimeMs: stat.mtimeMs,
     })
   }
 
-  posts.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
-  return typeof opts?.limit === 'number' ? posts.slice(0, opts.limit) : posts
+  items.sort((a, b) => {
+    const publishedDiff = b.post.publishedAt.localeCompare(a.post.publishedAt)
+    if (publishedDiff !== 0) return publishedDiff
+
+    const aBirth = a.fileBirthtimeMs ?? a.fileMtimeMs
+    const bBirth = b.fileBirthtimeMs ?? b.fileMtimeMs
+    if (bBirth !== aBirth) return bBirth - aBirth
+
+    if (b.fileMtimeMs !== a.fileMtimeMs) {
+      return b.fileMtimeMs - a.fileMtimeMs
+    }
+
+    return b.post.slug.localeCompare(a.post.slug)
+  })
+
+  const sortedPosts = items.map((item) => item.post)
+  return typeof opts?.limit === 'number' ? sortedPosts.slice(0, opts.limit) : sortedPosts
 }
 
 export async function getPostsByCategory(category: CategoryKey) {
