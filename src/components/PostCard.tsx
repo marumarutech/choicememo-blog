@@ -3,9 +3,11 @@ import Link from 'next/link'
 import type { Route } from 'next'
 import { CATEGORIES } from '@config/categories'
 import type { Post } from '@lib/posts-fs'
+import { getFauxLikeCount } from '@lib/fauxEngagement'
 
 export default function PostCard({ post, compact = false }: { post: Post; compact?: boolean }) {
   const categoryLabel = CATEGORIES[post.category]?.label ?? post.category
+  const likeCount = getFauxLikeCount(post.id)
 
   return (
     <Link
@@ -28,7 +30,7 @@ export default function PostCard({ post, compact = false }: { post: Post; compac
           {categoryLabel}
         </span>
       </div>
-      <div className="space-y-3 p-5">
+      <div className="flex flex-col gap-3 p-5">
         <div className="flex items-center gap-2 text-xs text-brand-muted">
           <time dateTime={post.publishedAt}>{post.publishedAt}</time>
           {post.updatedAt && post.updatedAt !== post.publishedAt ? (
@@ -46,9 +48,14 @@ export default function PostCard({ post, compact = false }: { post: Post; compac
             <span key={tag} className="rounded-full bg-brand-surfaceMuted px-2 py-0.5">#{tag}</span>
           ))}
         </div>
+        <div
+          className="mt-auto flex items-center justify-end gap-1 text-xs font-medium text-brand-muted"
+          aria-label={`この投稿の擬似いいね数は${likeCount.toLocaleString('ja-JP')}です`}
+        >
+          <span aria-hidden="true">♡</span>
+          <span>{likeCount.toLocaleString('ja-JP')}</span>
+        </div>
       </div>
     </Link>
   )
 }
-
-

@@ -6,6 +6,7 @@ import { getPostBySlug, getRelatedPosts } from '@lib/posts-fs'
 import { renderMDX } from '@lib/mdx'
 import PostCard from '@components/PostCard'
 import { Breadcrumb } from '@components/Breadcrumb'
+import FauxLikeButton from '@components/FauxLikeButton'
 
 export const dynamic = 'force-static'
 
@@ -56,7 +57,8 @@ export default async function ArticlePage({ params }: { params: { category: stri
 
       <article className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(260px,1fr)]">
         <div className="space-y-8">
-          <header className="space-y-6 rounded-2xl border border-slate-200 bg-white p-8 shadow-soft">
+          <header className="relative space-y-6 rounded-2xl border border-slate-200 bg-white p-8 shadow-soft">
+            <FauxLikeButton className="absolute right-6 top-6" />
             <span className="inline-flex items-center rounded-full bg-brand-primary/20 px-3 py-1 text-xs font-semibold text-brand-primary">
               {categoryMeta.label}
             </span>
@@ -117,5 +119,3 @@ export default async function ArticlePage({ params }: { params: { category: stri
     </div>
   )
 }
-
-
